@@ -1,12 +1,12 @@
 //nolint:stylecheck,revive
 package code
 
-type opcode uint8
+type Opcode uint8
 
 // Instruction set is here.
 // https://docs.oracle.com/javase/specs/jvms/se22/html/jvms-6.html#jvms-6.5
 const (
-	_               opcode = iota
+	_               Opcode = iota
 	Aaload                 = 50  // (0x32)
 	Aastore                = 83  // (0x53)
 	Aconst_null            = 1   // (0x1)
