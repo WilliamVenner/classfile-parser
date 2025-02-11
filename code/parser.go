@@ -12,7 +12,7 @@ import (
 type codeParser struct {
 	binary.Parser
 
-	opcodeParseFns map[opcode]opcodeParseFn
+	opcodeParseFns map[Opcode]opcodeParseFn
 }
 
 type opcodeParseFn func(*Instruction) error
@@ -22,15 +22,15 @@ type CodeParser interface { //nolint:revive
 }
 
 type Instruction struct {
-	opcode   opcode
-	operands []uint8
+	Opcode   Opcode
+	Operands []uint8
 }
 
 func NewCodeParser(code []byte) CodeParser {
 	buf := bytes.NewBuffer(code)
 	p := &codeParser{
 		Parser:         binary.NewParser(buf),
-		opcodeParseFns: map[opcode]opcodeParseFn{},
+		opcodeParseFns: map[Opcode]opcodeParseFn{},
 	}
 	p.registerOpcodeParseFn(Aaload, p.nop)
 	p.registerOpcodeParseFn(Aastore, p.nop)
@@ -281,17 +281,17 @@ func (p *codeParser) parseInstruction() (*Instruction, error) {
 	if err != nil {
 		return nil, err
 	}
-	parse, ok := p.opcodeParseFns[opcode(b)]
+	parse, ok := p.opcodeParseFns[Opcode(b)]
 	if !ok {
 		return nil, fmt.Errorf("unknown opcode. %d", b)
 	}
 	inst := &Instruction{
-		opcode: opcode(b),
+		Opcode: Opcode(b),
 	}
 	return inst, parse(inst)
 }
 
-func (p *codeParser) registerOpcodeParseFn(code opcode, fn opcodeParseFn) {
+func (p *codeParser) registerOpcodeParseFn(code Opcode, fn opcodeParseFn) {
 	p.opcodeParseFns[code] = fn
 }
 
@@ -304,7 +304,7 @@ func (p *codeParser) take1Operand(inst *Instruction) error {
 	if err != nil {
 		return err
 	}
-	inst.operands = append(inst.operands, b)
+	inst.Operands = append(inst.Operands, b)
 	return nil
 }
 
@@ -377,10 +377,10 @@ func (p *codeParser) parseLookupSwitch(inst *Instruction) error {
 	if err != nil {
 		return err
 	}
-	inst.operands = append(inst.operands, uint8(npair>>24))
-	inst.operands = append(inst.operands, uint8(npair>>16))
-	inst.operands = append(inst.operands, uint8(npair>>8))
-	inst.operands = append(inst.operands, uint8(npair))
+	inst.Operands = append(inst.Operands, uint8(npair>>24))
+	inst.Operands = append(inst.Operands, uint8(npair>>16))
+	inst.Operands = append(inst.Operands, uint8(npair>>8))
+	inst.Operands = append(inst.Operands, uint8(npair))
 	for i := uint32(0); i < npair; i++ {
 		err := p.take4Operand(inst)
 		if err != nil {
@@ -413,19 +413,19 @@ func (p *codeParser) parseTableSwitch(inst *Instruction) error {
 	if err != nil {
 		return err
 	}
-	inst.operands = append(inst.operands, uint8(low>>24))
-	inst.operands = append(inst.operands, uint8(low>>16))
-	inst.operands = append(inst.operands, uint8(low>>8))
-	inst.operands = append(inst.operands, uint8(low))
+	inst.Operands = append(inst.Operands, uint8(low>>24))
+	inst.Operands = append(inst.Operands, uint8(low>>16))
+	inst.Operands = append(inst.Operands, uint8(low>>8))
+	inst.Operands = append(inst.Operands, uint8(low))
 
 	high, err := p.ReadUint32()
 	if err != nil {
 		return err
 	}
-	inst.operands = append(inst.operands, uint8(high>>24))
-	inst.operands = append(inst.operands, uint8(high>>16))
-	inst.operands = append(inst.operands, uint8(high>>8))
-	inst.operands = append(inst.operands, uint8(high))
+	inst.Operands = append(inst.Operands, uint8(high>>24))
+	inst.Operands = append(inst.Operands, uint8(high>>16))
+	inst.Operands = append(inst.Operands, uint8(high>>8))
+	inst.Operands = append(inst.Operands, uint8(high))
 
 	count := high - low + 1
 	for i := uint32(0); i < count; i++ {
@@ -445,9 +445,9 @@ func (p *codeParser) parseWide(inst *Instruction) error {
 	}
 	// TODO: fix data structure for instruction
 	// Next is not actual operand, but added to operands here.
-	inst.operands = append(inst.operands, b)
+	inst.Operands = append(inst.Operands, b)
 
-	switch opcode(b) {
+	switch Opcode(b) {
 	case Iload, Fload, Aload, Lload, Dload, Istore, Fstore, Astore, Lstore, Dstore, Ret:
 		return p.take2Operand(inst)
 	case Iinc:
