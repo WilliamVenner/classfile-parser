@@ -419,3 +419,11 @@ type AttributePermittedSubclasses struct {
 func (a *AttributePermittedSubclasses) Name() string {
 	return "PermittedSubclasses"
 }
+
+type AttributeScalaSig struct {
+	Signature []byte
+}
+
+func (a *AttributeScalaSig) Name() string {
+	return "ScalaSig"
+}

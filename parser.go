@@ -964,6 +964,10 @@ func readAttribute(p binary.Parser, attributeLength uint32, attributeName string
 			a.Classes = append(a.Classes, classIndex)
 		}
 		return a, nil
+	case "ScalaSig":
+		a := &AttributeScalaSig{}
+		a.Signature, err = p.ReadBytes(int(attributeLength))
+		return a, err
 	default:
 		return nil, errors.New("Unknown attributes:" + attributeName)
 	}
